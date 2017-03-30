@@ -1,0 +1,157 @@
+Fazer 3 versões:PaaS...
+
+3 Diagrama de arquitectura
+
+Testes: 
+Tabela com resultados ou gráficos
+Chrome-Network(saber tempo q demorou cada pedido)
+
+Análise critica dos 3:
+Performance: (Tem o mesmo desempenho? São iguais diferentes pq?)
+Capacidade de escalar: A arq com uma maquina virtual provavelmente nao escala mt bem. Qual escala melhor pq?
+Custo
+
+(De preferencia tudo na mesma plataforma)
+
+Buscar dados a BD relacional e devolver (Registar utilizadores)
+Buscar dados a Mongo BD (Guardar os jogos)
+
+
+websockets - para ser em tempo real
+_________________________
+
+Passos:
+0. Node.js 
+__
+1. Restify (servidor rest) + node
+___
+2. Instalar MongoDB 
+3. MongoDB -> Criar dados 
+__
+4. MongoDB + Restify 
+
+_________________________
+
+- Criar maquina virtual no amazon, guardar key
+- Abrir o PuTTYgen e fazer load à key
+- Guardar o ficheiro PuTTY
+- Abrir o PuTTY e ir à opção SSH - AUTH e meter esse ficheiro
+- Session -> meter o IP (public DNS IPV4) 
+- Após a abertura da cmd introduzir: ubuntu
+
+
+Instalar MongoDB: 
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+
+Criar dados no mongo: 
+https://docs.mongodb.com/manual/mongo/
+
+sudo service mongod start
+mongo --shell
+
+use tictactoe
+db.users.insert( { name: 'Monica', surname: 'Francisco' } );
+db.users.find();
+
+Instalar Node:
+https://www.digitalocean.com/community/tutorials/como-instalar-o-node-js-no-ubuntu-16-04-pt
+
+(Remover node: sudo apt-get purge --auto-remove nodejs
+Instalar versão 6: curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs)
+
+Node + restify:
+mkdir tictactoe
+npm init (cria um ficheiro com configurações)
+npm install restify --save
+nano server.js -> meter codigo (http://restify.com/)
+nodejs server.js
+
+Network & Security -> Clicar sobre a instância-> Edit -> Add Rule -> Port 8080
+
+_______________________
+
+Instalar Apache, MySQL e PHP:
+https://www.digitalocean.com/community/tutorials/como-instalar-a-pilha-linux-apache-mysql-php-lamp-no-ubuntu-16-04-pt
+HTTP Porta 80
+
+Instalar Composer:
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-composer-on-ubuntu-16-04
+
+Sacar adminer -> Copiar ficheiro adminer para a máquina virtual através do filezila 
+
+Para passar um ficheiro local para a máquina virtual através do filezila:
+Filezila -> Meter servidor, nome de utilizador (ubuntu) e pass (ubuntu), porta 22
+Editar -> Configurações -> SFTP -> Adicionar ficheiro chave
+Arrastar ficheiro para a pasta ubuntu porque não temos acesso directamente a var
+
+cp nome do ficheiro var/www/html (caso seja ficheiro)
+sudo cp -a pasta var/www/html / (caso seja pasta)
+
+Meter dominio/adminer-4.2.5-mysql.php... e entrar no mysql criar. Importar BD
+
+sudo npm install -g typescript (para compilar angular)
+
+Mudar urls nos ficheiros:
+client\app\services\rest.auth.service.ts -> http://52.43.106.204/API/ 
+client\app\services\rest.game.service.ts -> http://52.43.106.204:8080/v1/
+client\app\services\websocket.service.ts -> http://52.43.106.204:8080
+
+Copiar a pasta cliente para a máquina virtual 
+chmod -R 755 /var/www/html/client/ (dar permissões)
+Na pasta var/www/html/client/
+sudo npm update
+sudo tsc (compilar codigo typescript para javascript)
+na pasta cliente/api - sudo composer update
+
+Configurar directoria:
+sudo nano /etc/apache2/apache2.conf -> Substituir Directory /var/www/
+sudo nano  /etc/apache2/sites-available/000-default.conf -> Substituir DocumentRoot /var/www/html
+
+Copiar pasta nodejs-server
+sudo npm update
+sudo tsc
+
+(Para corrigir os bugs:
+sudo npm remove bcrypt -> sudo npm install bcrypt
+Mudar nos ficheiros mongoDB para mongodb
+restAPI/rest.games.ts
+restAPI/restAPI.v1.ts
+security/auth.util.ts)
+
+sudo service mongod start
+sudo service mongod status
+
+/nodejs-server/app 
+nano app.config.ts - alterar port p 8080 e IP http://52.43.106.204
+sudo tsc
+
+client/API
+sudo nano util.php -> mudar hostname para o IP http://52.43.106.204 e utilizador e password da BD (root/root)
+sudo service mysql status
+sudo composer update
+sudo service apache2 restart
+
+/nodejs-server
+node app.js (iniciar node)
+
+////////////////////
+sudo chown -R ubuntu:ubuntu .
+sudo chown -R www-data:www-data .
+
+//////////////
+/var/www/html/app/game$ sudo nano games.component.js
+refreshGame(game) {
+        var d = new Date();
+        var n = d.getTime();
+        window.console.log("TimeMarkReceive: " + n);
+        let g = this.getSetGameInfo(game);
+    }
+clickPeca(eventObj) {
+        // Only sends message to the server if game has not ended
+        var d = new Date();
+        var n = d.getTime();
+        window.console.log("TimeMarkSend: " + n);
+        if (this.getGameById(eventObj.gameId).gameStatus < 5) {
+            this.websocketService.playGame(eventObj.gameId, eventObj.position);
+        }
