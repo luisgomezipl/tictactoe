@@ -155,3 +155,28 @@ clickPeca(eventObj) {
         if (this.getGameById(eventObj.gameId).gameStatus < 5) {
             this.websocketService.playGame(eventObj.gameId, eventObj.position);
         }
+
+/////
+http://pt.stackoverflow.com/questions/30116/habilitar-o-htaccess-no-ubuntu
+
+Edite o arquivo /etc/apache2/sites-available/000-default.conf e procure pela linha DocumentRoot /var/www/html.
+
+Adicione a regra para o diretório:
+
+<Directory "/var/www/html">
+    AllowOverride All
+</Directory>
+Não se esqueça de restartar o apache após aplicar as configurações:
+
+sudo service apache2 restart
+
+.htaccess
+Options -Indexes
+
+////
+
+nohup node server.js &
+
+sudo ps aux | grep app.js
+
+kill <pid>
